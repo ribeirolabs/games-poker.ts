@@ -47,6 +47,27 @@ export class Card {
   public suit: Suit;
   public face: number;
 
+  static fromDisplay(display: string): Card {
+    const [faceDisplay, suit] = display.split("");
+    let face: number = parseInt(faceDisplay);
+    if (Number.isNaN(face)) {
+      for (const [value, display] of Object.entries(FACE_DISPLAY)) {
+        if (faceDisplay === display) {
+          face = parseInt(value);
+          if (Number.isNaN(face)) {
+            throw new Error(`INVALID_CARD: Invalid face ${faceDisplay}`);
+          }
+        }
+      }
+    }
+
+    if (!SUITS.includes(suit as any)) {
+      throw new Error(`INVALID_CARD: invalid suit ${suit}`);
+    }
+
+    return new Card(face, suit as Card["suit"]);
+  }
+
   constructor(face: number, suit: Suit) {
     this.face = face;
     this.suit = suit;
@@ -60,10 +81,10 @@ export class Card {
     const display = `${FACE_DISPLAY[this.face] ?? this.face}${SUIT_DISPLAY[this.suit] ?? this.suit}`;
     return display;
     // prettier-ignore
-    return [
-      '┌──┐',
-      `│${display}│`,
-      '└──┘',
-    ].join('\n');
+    // return [
+    //   '┌──┐',
+    //   `│${display}│`,
+    //   '└──┘',
+    // ].join('\n');
   }
 }

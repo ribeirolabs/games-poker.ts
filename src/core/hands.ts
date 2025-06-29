@@ -1,7 +1,6 @@
 import { Card } from "./card.ts";
 
 const HAND_TYPES = [
-  "incomplete",
   "high-card",
   "one-pair",
   "two-pair",
@@ -14,7 +13,7 @@ const HAND_TYPES = [
   "royal-flush",
 ] as const;
 
-type HandType = (typeof HAND_TYPES)[number];
+type HandType = (typeof HAND_TYPES)[number] | "incomplete";
 
 type Result = {
   success: boolean;
@@ -35,13 +34,15 @@ function sortAceHighToLow(a: Card, b: Card): number {
   return b.face - a.face;
 }
 
-class Hand {
+export class Hand {
   public type: HandType;
   public cards: Card[];
+  public rank: number;
 
   constructor(type: HandType, cards: Card[]) {
     this.type = type;
     this.cards = cards;
+    this.rank = type === "incomplete" ? -1 : HAND_TYPES.indexOf(type);
   }
 }
 
@@ -207,4 +208,39 @@ export function getHand(cards: Card[]): Hand {
   }
 
   return new Hand("high-card", [...cards].sort(sortAceHighToLow));
+}
+
+export function rankHands(hands: Hand[]): Hand[] {
+  return [...hands].sort((a, b) => {
+    const diff = b.rank - a.rank;
+    if (diff !== 0) {
+      return diff;
+    }
+
+    if (a.type === "royal-flush") {
+      return 0;
+    }
+
+    if (
+      [
+        "high-card",
+        "one-pair",
+        "two-pair",
+        "three-of-a-kind",
+        "four-of-a-kind",
+        "full-house",
+      ].includes(a.type)
+    ) {
+      for (let i = 0; i < a.cards.length; i++) {
+        const aCard = a.cards[i];
+        const bCard = b.cards[i];
+        const diff = sortAceHighToLow(aCard, bCard);
+        if (diff !== 0) {
+          return diff;
+        }
+      }
+    }
+
+    return sortAceHighToLow(a.cards[0], b.cards[0]);
+  });
 }
