@@ -146,3 +146,31 @@ it("royal-flush", () => {
   assert.equal(hand.cards[0].display(), "As");
   assert.equal(hand.cards[4].display(), "Ts");
 });
+
+describe("straight", () => {
+  it("5-A", () => {
+    // prettier-ignore
+    const hand = getHand([
+      new Card(3, "s"),
+      new Card(2, "c"),
+      new Card(1, "s"),
+      new Card(4, "h"),
+      new Card(5, "s"),
+    ]);
+    assert.equal(hand.type, "straight");
+    assert.equal(renderCards(hand.cards), "5s,4h,3s,2c,As");
+  });
+
+  it("A-T", () => {
+    // prettier-ignore
+    const hand = getHand([
+    new Card(12, "s"),
+    new Card(11, "c"),
+    new Card(13, "s"),
+    new Card(1, "h"),
+    new Card(10, "s"),
+  ]);
+    assert.equal(hand.type, "straight");
+    assert.equal(renderCards(hand.cards), "Ah,Ks,Qs,Jc,Ts");
+  });
+});

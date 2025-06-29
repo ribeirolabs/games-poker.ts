@@ -16,7 +16,11 @@ const HAND_TYPES = [
 
 type HandType = (typeof HAND_TYPES)[number];
 
-function sortHighToLow(a: Card, b: Card): number {
+function sortHighToAceLow(a: Card, b: Card): number {
+  return b.face - a.face;
+}
+
+function sortAceHighToLow(a: Card, b: Card): number {
   if (a.face === 1) {
     return b.face === 1 ? 0 : -1;
   }
@@ -72,21 +76,21 @@ function getPairs(cards: Card[]): {
   }
 
   return {
-    pairs: pairs.sort(sortHighToLow),
-    trips: trips.sort(sortHighToLow),
-    others: others.sort(sortHighToLow),
+    pairs: pairs.sort(sortAceHighToLow),
+    trips: trips.sort(sortAceHighToLow),
+    others: others.sort(sortAceHighToLow),
   };
 }
 
 function getFlush(cards: Card[]): { success: boolean; cards: Card[] } {
-  const suit: Card["suit"] = cards[0].suit;
-
   if (cards.length !== 5) {
     return {
       success: false,
       cards,
     };
   }
+
+  const suit: Card["suit"] = cards[0].suit;
 
   for (let i = 1; i < cards.length; i++) {
     const card = cards[i];
@@ -95,7 +99,39 @@ function getFlush(cards: Card[]): { success: boolean; cards: Card[] } {
     }
   }
 
-  return { success: true, cards: [...cards].sort(sortHighToLow) };
+  return { success: true, cards: [...cards].sort(sortAceHighToLow) };
+}
+
+function getStraight(cards: Card[]): { success: boolean; cards: Card[] } {
+  if (cards.length !== 5) {
+    return {
+      success: false,
+      cards,
+    };
+  }
+
+  const aceHigh = [...cards].sort(sortAceHighToLow);
+  const isAceToTen = aceHigh[0].face === 1 && aceHigh[4].face === 10;
+  if (isAceToTen) {
+    return {
+      success: true,
+      cards: aceHigh,
+    };
+  }
+
+  const aceLow = [...cards].sort(sortHighToAceLow);
+  const isStraight = aceLow[0].face - aceLow[4].face === 4;
+  if (isStraight) {
+    return {
+      success: true,
+      cards: aceLow,
+    };
+  }
+
+  return {
+    success: false,
+    cards,
+  };
 }
 
 function validateHand(cards: Card[]) {
@@ -117,12 +153,16 @@ export function getHand(cards: Card[]): Hand {
   }
 
   const flush = getFlush(cards);
-
   if (flush.success) {
     if (flush.cards[0].face === 1 && flush.cards[4].face === 10) {
       return new Hand("royal-flush", flush.cards);
     }
     return new Hand("flush", flush.cards);
+  }
+
+  const straight = getStraight(cards);
+  if (straight.success) {
+    return new Hand("straight", straight.cards);
   }
 
   const result = getPairs(cards);
@@ -143,5 +183,5 @@ export function getHand(cards: Card[]): Hand {
     return new Hand("two-pair", result.pairs.concat(result.others));
   }
 
-  return new Hand("high-card", [...cards].sort(sortHighToLow));
+  return new Hand("high-card", [...cards].sort(sortAceHighToLow));
 }
