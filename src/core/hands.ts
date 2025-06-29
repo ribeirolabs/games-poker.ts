@@ -1,7 +1,7 @@
 import { Card } from "./card.ts";
 
 const HAND_TYPES = [
-  "invalid",
+  "incomplete",
   "high-card",
   "one-pair",
   "two-pair",
@@ -18,7 +18,7 @@ type HandType = (typeof HAND_TYPES)[number];
 
 function sortHighToLow(a: Card, b: Card): number {
   if (a.face === 1) {
-    return -1;
+    return b.face === 1 ? 0 : -1;
   }
   if (b.face === 1) {
     return 1;
@@ -78,9 +78,51 @@ function getPairs(cards: Card[]): {
   };
 }
 
+function getFlush(cards: Card[]): { success: boolean; cards: Card[] } {
+  const suit: Card["suit"] = cards[0].suit;
+
+  if (cards.length !== 5) {
+    return {
+      success: false,
+      cards,
+    };
+  }
+
+  for (let i = 1; i < cards.length; i++) {
+    const card = cards[i];
+    if (suit !== card.suit) {
+      return { success: false, cards };
+    }
+  }
+
+  return { success: true, cards: [...cards].sort(sortHighToLow) };
+}
+
+function validateHand(cards: Card[]) {
+  const unique = new Set<string>();
+  for (const card of cards) {
+    const display = card.display();
+    if (unique.has(display)) {
+      throw new Error("INVALID_HAND");
+    }
+    unique.add(display);
+  }
+}
+
 export function getHand(cards: Card[]): Hand {
+  validateHand(cards);
+
   if (cards.length < 2) {
-    return new Hand("invalid", cards);
+    return new Hand("incomplete", cards);
+  }
+
+  const flush = getFlush(cards);
+
+  if (flush.success) {
+    if (flush.cards[0].face === 1 && flush.cards[4].face === 10) {
+      return new Hand("royal-flush", flush.cards);
+    }
+    return new Hand("flush", flush.cards);
   }
 
   const result = getPairs(cards);

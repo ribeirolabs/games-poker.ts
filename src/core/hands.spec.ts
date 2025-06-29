@@ -3,8 +3,23 @@ import { describe, it } from "node:test";
 import { Card } from "./card.ts";
 import { getHand } from "./hands.ts";
 
+function renderCards(cards: Card[]): string {
+  return cards.map((card) => card.display()).join(",");
+}
+
+it("throws error with invalid hand", () => {
+  // prettier-ignore
+  const cards = [
+    new Card(3, "s"),
+    new Card(3, "s"),
+    new Card(2, "s"),
+  ];
+
+  assert.throws(() => getHand(cards));
+});
+
 describe("high-card", () => {
-  it("A33", () => {
+  it("A32", () => {
     // prettier-ignore
     const cards = [
       new Card(3, "s"),
@@ -14,10 +29,7 @@ describe("high-card", () => {
 
     const hand = getHand(cards);
     assert.equal(hand.type, "high-card");
-    assert.deepEqual(
-      hand.cards.map((card) => card.face),
-      [1, 3, 2],
-    );
+    assert.equal(renderCards(hand.cards), "As,3s,2s");
   });
   it("J84", () => {
     // prettier-ignore
@@ -29,10 +41,7 @@ describe("high-card", () => {
 
     const hand = getHand(cards);
     assert.equal(hand.type, "high-card");
-    assert.deepEqual(
-      hand.cards.map((card) => card.face),
-      [11, 8, 4],
-    );
+    assert.equal(renderCards(hand.cards), "Js,8s,4s");
   });
   it("AKQ", () => {
     // prettier-ignore
@@ -44,89 +53,96 @@ describe("high-card", () => {
 
     const hand = getHand(cards);
     assert.equal(hand.type, "high-card");
-    assert.deepEqual(
-      hand.cards.map((card) => card.face),
-      [1, 13, 12],
-    );
+    assert.equal(renderCards(hand.cards), "As,Ks,Qs");
   });
 });
 
-describe("one-pair", () => {
-  it("22A73", () => {
-    // prettier-ignore
-    const cards = [
-      new Card(7, "s"),
-      new Card(2, "s"),
-      new Card(1, "s"),
-      new Card(2, "s"),
-      new Card(3, "s"),
-    ];
+it("one-pair", () => {
+  // prettier-ignore
+  const cards = [
+    new Card(7, "s"),
+    new Card(2, "s"),
+    new Card(1, "s"),
+    new Card(2, "c"),
+    new Card(3, "s"),
+  ];
 
-    const hand = getHand(cards);
-    assert.equal(hand.type, "one-pair");
-    assert.deepEqual(
-      hand.cards.map((card) => card.face),
-      [2, 2, 1, 7, 3],
-    );
-  });
+  const hand = getHand(cards);
+  assert.equal(hand.type, "one-pair");
+  assert.equal(renderCards(hand.cards), "2s,2c,As,7s,3s");
 });
 
-describe("two-pair", () => {
-  it("KK992", () => {
-    // prettier-ignore
-    const cards = [
-      new Card(9, "s"),
-      new Card(2, "s"),
-      new Card(12, "s"),
-      new Card(9, "s"),
-      new Card(12, "s"),
-    ];
+it("two-pair", () => {
+  // prettier-ignore
+  const cards = [
+    new Card(9, "s"),
+    new Card(2, "s"),
+    new Card(13, "s"),
+    new Card(9, "c"),
+    new Card(13, "c"),
+  ];
 
-    const hand = getHand(cards);
-    assert.equal(hand.type, "two-pair");
-    assert.deepEqual(
-      hand.cards.map((card) => card.face),
-      [12, 12, 9, 9, 2],
-    );
-  });
+  const hand = getHand(cards);
+  assert.equal(hand.type, "two-pair");
+  assert.equal(renderCards(hand.cards), "Ks,Kc,9s,9c,2s");
 });
 
-describe("three-of-a-kind", () => {
-  it("JJJA4", () => {
-    // prettier-ignore
-    const cards = [
-      new Card(1, "s"),
-      new Card(11, "s"),
-      new Card(4, "s"),
-      new Card(11, "s"),
-      new Card(11, "s"),
-    ];
+it("three-of-a-kind", () => {
+  // prettier-ignore
+  const cards = [
+    new Card(1, "s"),
+    new Card(11, "s"),
+    new Card(4, "c"),
+    new Card(11, "c"),
+    new Card(11, "h"),
+  ];
 
-    const hand = getHand(cards);
-    assert.equal(hand.type, "three-of-a-kind");
-    assert.deepEqual(
-      hand.cards.map((card) => card.face),
-      [11, 11, 11, 1, 4],
-    );
-  });
+  const hand = getHand(cards);
+  assert.equal(hand.type, "three-of-a-kind");
+  assert.equal(renderCards(hand.cards), "Js,Jc,Jh,As,4c");
 });
 
-describe("full-house", () => {
-  it("AAA33", () => {
-    // prettier-ignore
-    const cards = [
-      new Card(3, "s"),
-      new Card(1, "s"),
-      new Card(3, "s"),
-      new Card(1, "s"),
-      new Card(1, "s"),
-    ];
+it("full-house", () => {
+  // prettier-ignore
+  const cards = [
+    new Card(3, "s"),
+    new Card(1, "c"),
+    new Card(3, "h"),
+    new Card(1, "h"),
+    new Card(1, "d"),
+  ];
 
-    const hand = getHand(cards);
-    assert.equal(hand.type, "full-house");
-    assert.deepEqual(
-      hand.cards.map((card) => card.face),
-      [1, 1, 1, 3, 3],
-    );
-  });
+  const hand = getHand(cards);
+  assert.equal(hand.type, "full-house");
+  assert.equal(renderCards(hand.cards), "Ac,Ah,Ad,3s,3h");
+});
+
+it("flush", () => {
+  // prettier-ignore
+  const cards = [
+    new Card(3, "s"),
+    new Card(8, "s"),
+    new Card(2, "s"),
+    new Card(1, "s"),
+    new Card(12, "s"),
+  ];
+  const hand = getHand(cards);
+  assert.equal(hand.type, "flush");
+  assert.equal(hand.cards[0].display(), "As");
+  assert.equal(hand.cards[4].display(), "2s");
+});
+
+it("royal-flush", () => {
+  // prettier-ignore
+  const cards = [
+    new Card(10, "s"),
+    new Card(13, "s"),
+    new Card(11, "s"),
+    new Card(1, "s"),
+    new Card(12, "s"),
+  ];
+  const hand = getHand(cards);
+  assert.equal(hand.type, "royal-flush");
+  assert.equal(hand.cards[0].display(), "As");
+  assert.equal(hand.cards[4].display(), "Ts");
 });

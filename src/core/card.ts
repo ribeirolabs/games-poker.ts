@@ -53,6 +53,10 @@ export class Card {
   }
 
   public display(): string {
+    return `${FACE_DISPLAY[this.face] ?? this.face}${this.suit}`;
+  }
+
+  public render(): string {
     const display = `${FACE_DISPLAY[this.face] ?? this.face}${SUIT_DISPLAY[this.suit] ?? this.suit}`;
     return display;
     // prettier-ignore
