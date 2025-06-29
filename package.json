@@ -1,0 +1,22 @@
+{
+  "name": "poker.ts",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "test": "node --experimental-strip-types --test --watch './src/**/*.spec.ts'",
+    "dev": "node --experimental-strip-types src/index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "description": "",
+  "packageManager": "pnpm@10.11.1+sha1.82b5e196a3201a1871fce7461b3bdf8742486168",
+  "devDependencies": {
+    "@types/lodash.shuffle": "^4.2.9",
+    "@types/node": "^24.0.7"
+  },
+  "dependencies": {
+    "lodash.shuffle": "^4.2.0"
+  }
+}
