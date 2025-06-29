@@ -9,12 +9,17 @@ const HAND_TYPES = [
   "straight",
   "flush",
   "full-house",
-  "quads",
+  "four-of-a-kind",
   "straight-flush",
   "royal-flush",
 ] as const;
 
 type HandType = (typeof HAND_TYPES)[number];
+
+type Result = {
+  success: boolean;
+  cards: Card[];
+};
 
 function sortHighToAceLow(a: Card, b: Card): number {
   return b.face - a.face;
@@ -43,12 +48,14 @@ class Hand {
 function getPairs(cards: Card[]): {
   pairs: Card[];
   trips: Card[];
+  quads: Card[];
   others: Card[];
 } {
   if (cards.length < 2) {
     return {
       pairs: [],
       trips: [],
+      quads: [],
       others: cards,
     };
   }
@@ -63,6 +70,7 @@ function getPairs(cards: Card[]): {
 
   const pairs: Card[] = [];
   const trips: Card[] = [];
+  const quads: Card[] = [];
   const others: Card[] = [];
 
   for (const cards of Object.values(counts)) {
@@ -70,6 +78,8 @@ function getPairs(cards: Card[]): {
       pairs.push(...cards);
     } else if (cards.length === 3) {
       trips.push(...cards);
+    } else if (cards.length === 4) {
+      quads.push(...cards);
     } else {
       others.push(...cards);
     }
@@ -78,11 +88,12 @@ function getPairs(cards: Card[]): {
   return {
     pairs: pairs.sort(sortAceHighToLow),
     trips: trips.sort(sortAceHighToLow),
+    quads: quads.sort(sortAceHighToLow),
     others: others.sort(sortAceHighToLow),
   };
 }
 
-function getFlush(cards: Card[]): { success: boolean; cards: Card[] } {
+function getFlush(cards: Card[]): Result {
   if (cards.length !== 5) {
     return {
       success: false,
@@ -91,7 +102,6 @@ function getFlush(cards: Card[]): { success: boolean; cards: Card[] } {
   }
 
   const suit: Card["suit"] = cards[0].suit;
-
   for (let i = 1; i < cards.length; i++) {
     const card = cards[i];
     if (suit !== card.suit) {
@@ -102,7 +112,7 @@ function getFlush(cards: Card[]): { success: boolean; cards: Card[] } {
   return { success: true, cards: [...cards].sort(sortAceHighToLow) };
 }
 
-function getStraight(cards: Card[]): { success: boolean; cards: Card[] } {
+function getStraight(cards: Card[]): Result {
   if (cards.length !== 5) {
     return {
       success: false,
@@ -152,11 +162,30 @@ export function getHand(cards: Card[]): Hand {
     return new Hand("incomplete", cards);
   }
 
+  const pairs = getPairs(cards);
   const flush = getFlush(cards);
+
+  if (
+    flush.success &&
+    flush.cards[0].face === 1 &&
+    flush.cards[4].face === 10
+  ) {
+    return new Hand("royal-flush", flush.cards);
+  }
+
+  if (flush.success && flush.cards[0].face - flush.cards[4].face === 4) {
+    return new Hand("straight-flush", flush.cards);
+  }
+
+  if (pairs.quads.length) {
+    return new Hand("four-of-a-kind", pairs.quads.concat(pairs.others));
+  }
+
+  if (pairs.trips.length && pairs.pairs.length === 2) {
+    return new Hand("full-house", pairs.trips.concat(pairs.pairs));
+  }
+
   if (flush.success) {
-    if (flush.cards[0].face === 1 && flush.cards[4].face === 10) {
-      return new Hand("royal-flush", flush.cards);
-    }
     return new Hand("flush", flush.cards);
   }
 
@@ -165,22 +194,16 @@ export function getHand(cards: Card[]): Hand {
     return new Hand("straight", straight.cards);
   }
 
-  const result = getPairs(cards);
-
-  if (result.trips.length && result.pairs.length === 2) {
-    return new Hand("full-house", result.trips.concat(result.pairs));
+  if (pairs.trips.length) {
+    return new Hand("three-of-a-kind", pairs.trips.concat(pairs.others));
   }
 
-  if (result.trips.length) {
-    return new Hand("three-of-a-kind", result.trips.concat(result.others));
+  if (pairs.pairs.length === 2) {
+    return new Hand("one-pair", pairs.pairs.concat(pairs.others));
   }
 
-  if (result.pairs.length === 2) {
-    return new Hand("one-pair", result.pairs.concat(result.others));
-  }
-
-  if (result.pairs.length === 4) {
-    return new Hand("two-pair", result.pairs.concat(result.others));
+  if (pairs.pairs.length === 4) {
+    return new Hand("two-pair", pairs.pairs.concat(pairs.others));
   }
 
   return new Hand("high-card", [...cards].sort(sortAceHighToLow));
