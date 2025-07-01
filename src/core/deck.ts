@@ -8,7 +8,7 @@ export class Deck {
     this.cards = shuffle(this.cards);
   }
 
-  public pick(count: number): Card[] {
+  public pick(count: number = 1): Card[] {
     return this.cards.splice(0, count);
   }
 
