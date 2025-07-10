@@ -1,6 +1,5 @@
-import { Card } from "../core/card.ts";
-import { Deck } from "../core/deck.ts";
-import { BasePlayer } from "../core/player.ts";
+import { Card, CardJSON } from '../core/card.ts';
+import { Deck } from '../core/deck.ts';
 
 type ChineseHand = {
   top: Card[];
@@ -8,7 +7,21 @@ type ChineseHand = {
   bottom: Card[];
 };
 
-class Player extends BasePlayer {
+type ChineseHandJSON = {
+  top: CardJSON[];
+  middle: CardJSON[];
+  bottom: CardJSON[];
+};
+
+export type PlayerJSON = {
+  id: string;
+  points: number;
+  cards: CardJSON[];
+  hand: ChineseHandJSON;
+};
+
+class Player {
+  public id: string;
   public points: number = 0;
   public cards: Card[] = [];
   public hand: ChineseHand = {
@@ -17,10 +30,14 @@ class Player extends BasePlayer {
     bottom: [],
   };
 
+  constructor(id: string) {
+    this.id = id;
+  }
+
   public addToHand(position: keyof ChineseHand, card: Card) {
     const hand = this.hand[position];
 
-    if (position === "top" && hand.length === 3) {
+    if (position === 'top' && hand.length === 3) {
       return;
     } else if (hand.length === 5) {
       return;
@@ -28,7 +45,26 @@ class Player extends BasePlayer {
 
     hand.push(card);
   }
+
+  public toJSON(): PlayerJSON {
+    return {
+      id: this.id,
+      points: this.points,
+      cards: this.cards.map((card) => card.toJSON()),
+      hand: {
+        top: this.hand.top.map((card) => card.toJSON()),
+        middle: this.hand.middle.map((card) => card.toJSON()),
+        bottom: this.hand.bottom.map((card) => card.toJSON()),
+      },
+    };
+  }
 }
+
+export type ChinesePokerJSON = {
+  deck: CardJSON[];
+  players: PlayerJSON[];
+  button: number;
+};
 
 export class ChinesePoker {
   public deck: Deck = new Deck();
@@ -36,13 +72,21 @@ export class ChinesePoker {
   public waiting: Player[] = [];
   public button: number = -1;
 
-  public seatPlayer(id: string, name: string) {
+  public toJSON(): ChinesePokerJSON {
+    return {
+      deck: this.deck.cards.map((card) => card.toJSON()),
+      players: this.players.map((player) => player.toJSON()),
+      button: this.button,
+    };
+  }
+
+  public seatPlayer(id: string) {
     if (this.players.length === 2) {
-      this.waiting.push(new Player(id, name));
+      this.waiting.push(new Player(id));
       return;
     }
 
-    this.players.push(new Player(id, name));
+    this.players.push(new Player(id));
   }
 
   protected moveButton() {
