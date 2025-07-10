@@ -43,6 +43,8 @@ export function renderCards() {
   }
 }
 
+export type CardJSON = { suit: Suit; face: number };
+
 export class Card {
   public suit: Suit;
   public face: number;
@@ -75,6 +77,13 @@ export class Card {
 
   public display(): string {
     return `${FACE_DISPLAY[this.face] ?? this.face}${this.suit}`;
+  }
+
+  public toJSON(): CardJSON {
+    return {
+      suit: this.suit,
+      face: this.face,
+    };
   }
 
   public render(): string {

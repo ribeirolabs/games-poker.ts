@@ -1,4 +1,4 @@
-import { Card } from "./card.ts";
+import { Card, CardJSON } from "./card.ts";
 
 const HAND_TYPES = [
   "high-card",
@@ -34,6 +34,12 @@ function sortAceHighToLow(a: Card, b: Card): number {
   return b.face - a.face;
 }
 
+export type HandJSON = {
+  type: HandType;
+  cards: CardJSON[];
+  rank: number;
+};
+
 export class Hand {
   public type: HandType;
   public cards: Card[];
@@ -43,6 +49,14 @@ export class Hand {
     this.type = type;
     this.cards = cards;
     this.rank = type === "incomplete" ? -1 : HAND_TYPES.indexOf(type);
+  }
+
+  public toJSON(): HandJSON {
+    return {
+      type: this.type,
+      cards: this.cards.map((card) => card.toJSON()),
+      rank: this.rank,
+    };
   }
 }
 
