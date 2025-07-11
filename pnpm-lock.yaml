@@ -1,50 +1,62 @@
-lockfileVersion: '9.0'
+lockfileVersion: "9.0"
 
 settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
 importers:
-
   .:
     dependencies:
       lodash.shuffle:
         specifier: ^4.2.0
         version: 4.2.0
     devDependencies:
-      '@types/lodash.shuffle':
+      "@types/lodash.shuffle":
         specifier: ^4.2.9
         version: 4.2.9
-      '@types/node':
+      "@types/node":
         specifier: ^24.0.7
         version: 24.0.7
 
 packages:
+  "@types/lodash.shuffle@4.2.9":
+    resolution:
+      {
+        integrity: sha512-4siLZ4/vQH4T7Bm4254sG4n6hh9k7vd/bqfDVoeIwSha4Itu3MuoTxPX2I2Tue2JN94y7Y2I27QzwHZLdMlrBg==,
+      }
 
-  '@types/lodash.shuffle@4.2.9':
-    resolution: {integrity: sha512-4siLZ4/vQH4T7Bm4254sG4n6hh9k7vd/bqfDVoeIwSha4Itu3MuoTxPX2I2Tue2JN94y7Y2I27QzwHZLdMlrBg==}
+  "@types/lodash@4.17.19":
+    resolution:
+      {
+        integrity: sha512-NYqRyg/hIQrYPT9lbOeYc3kIRabJDn/k4qQHIXUpx88CBDww2fD15Sg5kbXlW86zm2XEW4g0QxkTI3/Kfkc7xQ==,
+      }
 
-  '@types/lodash@4.17.19':
-    resolution: {integrity: sha512-NYqRyg/hIQrYPT9lbOeYc3kIRabJDn/k4qQHIXUpx88CBDww2fD15Sg5kbXlW86zm2XEW4g0QxkTI3/Kfkc7xQ==}
-
-  '@types/node@24.0.7':
-    resolution: {integrity: sha512-YIEUUr4yf8q8oQoXPpSlnvKNVKDQlPMWrmOcgzoduo7kvA2UF0/BwJ/eMKFTiTtkNL17I0M6Xe2tvwFU7be6iw==}
+  "@types/node@24.0.7":
+    resolution:
+      {
+        integrity: sha512-YIEUUr4yf8q8oQoXPpSlnvKNVKDQlPMWrmOcgzoduo7kvA2UF0/BwJ/eMKFTiTtkNL17I0M6Xe2tvwFU7be6iw==,
+      }
 
   lodash.shuffle@4.2.0:
-    resolution: {integrity: sha512-V/rTAABKLFjoecTZjKSv+A1ZomG8hZg8hlgeG6wwQVD9AGv+10zqqSf6mFq2tVA703Zd5R0YhSuSlXA+E/Ei+Q==}
+    resolution:
+      {
+        integrity: sha512-V/rTAABKLFjoecTZjKSv+A1ZomG8hZg8hlgeG6wwQVD9AGv+10zqqSf6mFq2tVA703Zd5R0YhSuSlXA+E/Ei+Q==,
+      }
 
   undici-types@7.8.0:
-    resolution: {integrity: sha512-9UJ2xGDvQ43tYyVMpuHlsgApydB8ZKfVYTsLDhXkFL/6gfkp+U8xTGdh8pMJv1SpZna0zxG1DwsKZsreLbXBxw==}
+    resolution:
+      {
+        integrity: sha512-9UJ2xGDvQ43tYyVMpuHlsgApydB8ZKfVYTsLDhXkFL/6gfkp+U8xTGdh8pMJv1SpZna0zxG1DwsKZsreLbXBxw==,
+      }
 
 snapshots:
-
-  '@types/lodash.shuffle@4.2.9':
+  "@types/lodash.shuffle@4.2.9":
     dependencies:
-      '@types/lodash': 4.17.19
+      "@types/lodash": 4.17.19
 
-  '@types/lodash@4.17.19': {}
+  "@types/lodash@4.17.19": {}
 
-  '@types/node@24.0.7':
+  "@types/node@24.0.7":
     dependencies:
       undici-types: 7.8.0
 

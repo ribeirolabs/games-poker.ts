@@ -1,5 +1,3 @@
-import { stdout } from "node:process";
-
 const SUITS = ["s", "c", "h", "d"] as const;
 type Suit = (typeof SUITS)[number];
 
@@ -30,20 +28,19 @@ export function generateAllCards() {
   return cards;
 }
 
-export function renderCards() {
-  stdout.write("\n");
-  stdout.write("\n");
-
-  for (const suit of SUITS) {
-    for (let face = 1; face <= FACE_COUNT; face++) {
-      const card = new Card(face, suit);
-      stdout.write(card.display() + " ");
+export type CardJSON =
+  | {
+      side: "front";
+      key: string;
+      suit: Suit;
+      face: number;
+      faceDisplay: string;
+      suitDisplay: string;
     }
-    stdout.write("\n");
-  }
-}
-
-export type CardJSON = { suit: Suit; face: number };
+  | {
+      side: "back";
+      key: string;
+    };
 
 export class Card {
   public suit: Suit;
@@ -81,8 +78,12 @@ export class Card {
 
   public toJSON(): CardJSON {
     return {
+      side: "front",
+      key: this.display(),
       suit: this.suit,
+      suitDisplay: SUIT_DISPLAY[this.suit],
       face: this.face,
+      faceDisplay: FACE_DISPLAY[this.face] ?? this.face.toString(),
     };
   }
 
