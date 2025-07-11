@@ -20,11 +20,19 @@ type Result = {
   cards: Card[];
 };
 
-function sortHighToAceLow(a: Card, b: Card): number {
+const SUITS_ORDER = ["s", "h", "c", "d"];
+
+export function sortSuits(a: Card, b: Card): number {
+  const aScore = SUITS_ORDER.indexOf(a.suit);
+  const bScore = SUITS_ORDER.indexOf(b.suit);
+  return aScore - bScore;
+}
+
+export function sortHighToAceLow(a: Card, b: Card): number {
   return b.face - a.face;
 }
 
-function sortAceHighToLow(a: Card, b: Card): number {
+export function sortAceHighToLow(a: Card, b: Card): number {
   if (a.face === 1) {
     return b.face === 1 ? 0 : -1;
   }
@@ -38,17 +46,65 @@ export type HandJSON = {
   type: HandType;
   cards: CardJSON[];
   rank: number;
+  description: string;
 };
 
 export class Hand {
   public type: HandType;
   public cards: Card[];
   public rank: number;
+  public name: string = "";
+  public description: string = "";
 
   constructor(type: HandType, cards: Card[]) {
     this.type = type;
     this.cards = cards;
     this.rank = type === "incomplete" ? -1 : HAND_TYPES.indexOf(type);
+
+    switch (type) {
+      case "high-card":
+        this.name = "High Card";
+        this.description = `${this.cards[0].faceName()}`;
+        break;
+      case "one-pair":
+        this.name = "Pair";
+        this.description = `${this.cards[0].faceName()}`;
+        break;
+      case "two-pair":
+        this.name = "Two Pair";
+        this.description = `${this.cards[0].faceName()} and ${this.cards[2].faceName()}`;
+        break;
+      case "three-of-a-kind":
+        this.name = "Three of a Kind";
+        this.description = `${this.cards[0].faceName()}`;
+        break;
+      case "straight":
+        this.name = "Straight";
+        this.description = `${this.cards[0].faceName()} to ${this.cards[4].faceName()}`;
+        break;
+      case "flush":
+        this.name = "Flush";
+        this.description = `${this.cards[0].faceName()} high`;
+        break;
+      case "full-house":
+        this.name = "Full House";
+        this.description = `${this.cards[0].faceName()} over ${this.cards[4].faceName()}`;
+        break;
+      case "four-of-a-kind":
+        this.name = "Four of a Kind";
+        this.description = `${this.cards[0].faceName()}`;
+        break;
+      case "straight-flush":
+        this.name = "Straight Flush";
+        this.description = `${this.cards[0].faceName()} to ${this.cards[4].faceName()}`;
+        break;
+      case "royal-flush":
+        this.name = "Royal Flush";
+        this.description = "";
+        break;
+      case "incomplete":
+        break;
+    }
   }
 
   public toJSON(): HandJSON {
@@ -56,6 +112,7 @@ export class Hand {
       type: this.type,
       cards: this.cards.map((card) => card.toJSON()),
       rank: this.rank,
+      description: this.description,
     };
   }
 }
@@ -136,17 +193,31 @@ function getStraight(cards: Card[]): Result {
   }
 
   const aceHigh = [...cards].sort(sortAceHighToLow);
+  const aceLow = [...cards].sort(sortHighToAceLow);
   const isAceToTen = aceHigh[0].face === 1 && aceHigh[4].face === 10;
-  if (isAceToTen) {
+  const straightCards = isAceToTen ? aceHigh : aceLow;
+  let sequence = 0;
+  for (let i = 0; i < straightCards.length; i++) {
+    const card = straightCards[i];
+    const face = isAceToTen && card.face === 1 ? 14 : card.face;
+    if (sequence === 0) {
+      sequence = face;
+      continue;
+    }
+    if (sequence - face !== 1) {
+      break;
+    }
+    sequence = face;
+  }
+
+  if (sequence === aceHigh[4].face) {
     return {
       success: true,
       cards: aceHigh,
     };
   }
 
-  const aceLow = [...cards].sort(sortHighToAceLow);
-  const isStraight = aceLow[0].face - aceLow[4].face === 4;
-  if (isStraight) {
+  if (sequence === aceLow[4].face) {
     return {
       success: true,
       cards: aceLow,

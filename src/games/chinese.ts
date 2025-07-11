@@ -147,6 +147,7 @@ export class ChinesePoker {
 
   public reset() {
     this.deck.reset();
+    this.ready = [];
     this.players.forEach((player) => {
       player.cards = [];
     });
