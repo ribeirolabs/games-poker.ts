@@ -123,7 +123,7 @@ export class Card {
   public toJSON(): Extract<CardJSON, { side: "front" }> {
     return {
       side: "front",
-      key: this.key || this.display(),
+      key: this.display(),
       suit: this.suit,
       suitDisplay: this.suitDisplay(),
       suitName: this.suitName(),
